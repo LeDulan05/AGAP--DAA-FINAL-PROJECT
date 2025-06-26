@@ -158,7 +158,7 @@ export default function FamilyRegistration() {
               <h2>Household Details</h2>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Number of children</label>
+                  <label>Number of children (0-17)</label>
                   <Field name="NumChildren">
                     {({ field }) => <input {...field} type="number" min="0"  placeholder="0" required />}
                   </Field>
@@ -193,7 +193,7 @@ export default function FamilyRegistration() {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Any medical conditions?</label>
+                  <label>Any medical concerns?</label>
                   <Field name="MedicalCondition">
                     {({ field }) => (
                       <select {...field} required>

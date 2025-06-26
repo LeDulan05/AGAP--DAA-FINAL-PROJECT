@@ -321,6 +321,7 @@ const DashboardOverview = () => {
               <th>Priority Score</th>
               <th>Children</th>
               <th>Elderly</th>
+              <th>Adults</th>
               <th>Medical Condition</th>
               <th>Income (Est.)</th>
               <th>Aid Status</th>
@@ -342,6 +343,7 @@ const DashboardOverview = () => {
                 </td>
                 <td>{family.children}</td>
                 <td>{family.elderly}</td>
+                <td>{family.adults}</td>
                 <td>{family.medicalCondition ? "Yes" : "No"}</td>
                 <td>₱{family.monthlyIncome.toLocaleString()}/month</td>
                 <td>

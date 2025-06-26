@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import "./distributeAid.css"
 
@@ -197,50 +195,93 @@ const DistributeAid = () => {
 
   //Knapsack exhaustive algorithm
   const knapsackExhaustive = (families, totalCash, totalPacks) => {
-    const sortedFamilies = insertionSortByPriority([...families])
-    const n = sortedFamilies.length
-    const totalCombinations = 1 << n
-    let bestSubset = []
-    let bestScore = 0
+  const sortedFamilies = insertionSortByPriority([...families])
+  const n = sortedFamilies.length
+  const totalCombinations = 1 << n
+  let bestSubset = []
+  let bestScore = 0
 
-    for (let subset = 1; subset < totalCombinations; subset++) {
-      const currentSubset = []
-      let currentScore = 0
+  for (let subset = 1; subset < totalCombinations; subset++) {
+    const currentSubset = []
+    let currentScore = 0
 
-      for (let i = 0; i < n; i++) {
-        if (subset & (1 << i)) {
-          currentSubset.push(sortedFamilies[i])
-          currentScore += sortedFamilies[i].priorityScore
-        }
-      }
-
-      const count = currentSubset.length
-      const cashPerFamily = totalCash / count
-      const packsPerFamily = totalPacks / count
-
-      //Check if resources can be equally distributed AND meet minimum requirements
-      if (Number.isInteger(cashPerFamily) && Number.isInteger(packsPerFamily) && cashPerFamily >= 1000 &&packsPerFamily >= 1) {
-        if (currentScore > bestScore) {
-          bestScore = currentScore
-          bestSubset = currentSubset.map((fam) => ({
-            ...fam,
-            allocatedFunds: cashPerFamily,
-            allocatedFood: packsPerFamily,
-          }))
-        }
+    for (let i = 0; i < n; i++) {
+      if (subset & (1 << i)) {
+        currentSubset.push(sortedFamilies[i])
+        currentScore += sortedFamilies[i].priorityScore
       }
     }
 
-    return {
-      selectedFamilies: bestSubset,
-      totalSelected: bestSubset.length,
-      cashPerFamily: bestSubset[0]?.allocatedFunds || 0,
-      packsPerFamily: bestSubset[0]?.allocatedFood || 0,
-      totalCashUsed: bestSubset.length * (bestSubset[0]?.allocatedFunds || 0),
-      totalPacksUsed: bestSubset.length * (bestSubset[0]?.allocatedFood || 0),
-      totalScore: bestScore,
+    const count = currentSubset.length
+    const cashPerFamily = Math.floor(totalCash / count)
+    const packsPerFamily = Math.floor(totalPacks / count)
+
+    // Check if minimum requirements are met
+    if (cashPerFamily >= 1000 && packsPerFamily >= 1) {
+      // Calculate remainders
+      const remainingCash = totalCash - (cashPerFamily * count)
+      const remainingPacks = totalPacks - (packsPerFamily * count)
+
+      // Create allocation with base amounts
+      const allocation = currentSubset.map((fam) => ({
+        ...fam,
+        allocatedFunds: cashPerFamily,
+        allocatedFood: packsPerFamily,
+      }))
+
+      // Distribute remaining cash to highest priority families
+      // (Only if each family can get at least 500 more)
+      if (remainingCash >= 1000) {
+        const cashBonusPerFamily = Math.floor(remainingCash / count)
+        if (cashBonusPerFamily >= 500) {
+          const cashFamiliesCount = Math.floor(remainingCash / cashBonusPerFamily)
+          for (let i = 0; i < Math.min(cashFamiliesCount, count); i++) {
+            allocation[i].allocatedFunds += cashBonusPerFamily
+          }
+        }
+      }
+
+      // Distribute remaining food packs to highest priority families
+      // Sort allocation by priority to ensure highest priority gets remainder
+      allocation.sort((a, b) => b.priorityScore - a.priorityScore)
+      
+      for (let i = 0; i < remainingPacks && i < count; i++) {
+        allocation[i].allocatedFood += 1
+      }
+
+      // Calculate total score with bonus for efficient resource usage
+      const resourceUtilization = ((totalCash - (remainingCash % count)) + (totalPacks - (remainingPacks % count))) / (totalCash + totalPacks)
+      const adjustedScore = currentScore + (resourceUtilization * 0.1) // Small bonus for better resource usage
+
+      if (adjustedScore > bestScore) {
+        bestScore = adjustedScore
+        bestSubset = allocation
+      }
     }
   }
+
+  // Calculate final totals
+  const totalCashUsed = bestSubset.reduce((sum, fam) => sum + fam.allocatedFunds, 0)
+  const totalPacksUsed = bestSubset.reduce((sum, fam) => sum + fam.allocatedFood, 0)
+
+  return {
+    selectedFamilies: bestSubset,
+    totalSelected: bestSubset.length,
+    cashPerFamily: bestSubset.length > 0 ? Math.min(...bestSubset.map(f => f.allocatedFunds)) : 0, // Minimum allocation
+    packsPerFamily: bestSubset.length > 0 ? Math.min(...bestSubset.map(f => f.allocatedFood)) : 0, // Minimum allocation
+    totalCashUsed: totalCashUsed,
+    totalPacksUsed: totalPacksUsed,
+    totalScore: Math.floor(bestScore), // Remove the small bonus from display
+    remainderDistributed: true,
+    distributionDetails: bestSubset.map(fam => ({
+      id: fam.id,
+      name: fam.name,
+      priorityScore: fam.priorityScore,
+      allocatedFunds: fam.allocatedFunds,
+      allocatedFood: fam.allocatedFood
+    }))
+  }
+}
 
 
   //Handle funds input change
@@ -354,7 +395,7 @@ const DistributeAid = () => {
           </div>
 
           <div className="input-group">
-            <label className="input-label">Food Packs</label>
+            <label className="input-label">Relief Pack</label>
             <input
               type="text"
               className="form-input"
@@ -378,7 +419,7 @@ const DistributeAid = () => {
               <strong>Funds per Family:</strong> ₱{knapsackResults.cashPerFamily}
             </p>
             <p>
-              <strong>Food per Family:</strong> {knapsackResults.packsPerFamily} packs
+              <strong>Relief per Family:</strong> {knapsackResults.packsPerFamily} packs
             </p>
             <p>
               <strong>Total Priority Score:</strong> {knapsackResults.totalScore}
@@ -389,6 +430,17 @@ const DistributeAid = () => {
             <p>
               <strong>Packs Used:</strong> {knapsackResults.totalPacksUsed}
             </p>
+            <p>
+              <strong>Total Packs Used:</strong> {knapsackResults.totalPacksUsed}
+              <span className="efficiency-indicator">
+              ({((knapsackResults.totalPacksUsed / Number(totalFoodPacks)) * 100).toFixed(1)}% utilized)
+              </span>
+            </p>
+              {knapsackResults.remainderDistributed && (
+            <p className="remainder-note">
+              <strong>Note:</strong> Remaining relief packs distributed to highest priority families
+            </p>
+            )}  
           </div>
         )}
       </div>
@@ -408,23 +460,33 @@ const DistributeAid = () => {
                   <th>Children</th>
                   <th>Elderly</th>
                   <th>Funds</th>
-                  <th>Food</th>
+                  <th>Relief Pack</th>
+                  <th>Extra Pack</th>
                 </tr>
               </thead>
               <tbody>
-                {allocationResults.map((family) => (
+                {allocationResults.map((family) => {
+                const minFunds = knapsackResults?.cashPerFamily || 0;
+                const minFood = knapsackResults?.packsPerFamily || 0;
+                const extraFood = family.allocatedFood - minFood;
+        
+                return (
                   <tr key={family.id}>
                     <td>{family.id}</td>
                     <td>{family.name}</td>
-                    <td className={`priority-score priority-${getPriorityClass(family.priorityScore)}`}>
+                      <td className={`priority-score priority-${getPriorityClass(family.priorityScore)}`}>
                       {family.priorityScore}
                     </td>
                     <td>{family.children}</td>
                     <td>{family.elderly}</td>
                     <td>₱{family.allocatedFunds.toFixed(2)}</td>
                     <td>{family.allocatedFood} packs</td>
+                    <td className={extraFood > 0 ? 'extra-food' : ''}>
+                      {extraFood > 0 ? `+${extraFood}` : '-'}
+                    </td>
                   </tr>
-                ))}
+                )
+              })}
               </tbody>
             </table>
           </div>
