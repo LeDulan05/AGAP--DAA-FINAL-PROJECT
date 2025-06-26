@@ -17,6 +17,32 @@ const DashboardOverview = () => {
   const [medicalFilter, setMedicalFilter] = useState("all")
   const [aidStatusFilter, setAidStatusFilter] = useState("all")
 
+  //Get aid history count for a family
+  const getAidHistory = async (familyID) => {
+    try {
+      const response = await fetch(`http://localhost:3001/AidDistributionRoute`)
+      if (!response.ok) return 0
+
+      const distributions = await response.json()
+      let aidCount = 0
+
+      distributions.forEach((distribution) => {
+        if (distribution.distributionDetails) {
+          distribution.distributionDetails.forEach((detail) => {
+            if (detail.FamilyID === familyID) {
+              aidCount++
+            }
+          })
+        }
+      })
+
+      return aidCount
+    } catch (error) {
+      console.error(`Error fetching aid history for family ${familyID}:`, error)
+      return 0
+    }
+  }
+
   //Fetch families with household composition
   const fetchFamiliesWithHouseComp = async () => {
     try {
@@ -48,6 +74,7 @@ const DashboardOverview = () => {
               medicalCondition: latestHouseComp.MedicalCondition || false,
               employmentStatus: latestHouseComp.EmploymentStatus?.toLowerCase() || "unemployed",
               monthlyIncome: latestHouseComp.HouseIncome || 0,
+              timesAided: await getAidHistory(family.FamilyID),
             })
 
             return {
@@ -60,8 +87,9 @@ const DashboardOverview = () => {
               employmentStatus: latestHouseComp.EmploymentStatus || "unemployed",
               monthlyIncome: latestHouseComp.HouseIncome || 0,
               aidStatus: latestHouseComp.PreviousAid === "Yes" ? "Aided" : "Unaided",
+              timesAided: await getAidHistory(family.FamilyID),
               priorityScore: priorityScore,
-              
+
               familyID: family.FamilyID,
               address: family.Address,
               contact: family.Contact,
@@ -81,6 +109,7 @@ const DashboardOverview = () => {
               employmentStatus: "unemployed",
               monthlyIncome: 0,
               aidStatus: "Unaided",
+              timesAided: 0,
               priorityScore: 0,
               familyID: family.FamilyID,
               address: family.Address,
@@ -143,13 +172,18 @@ const DashboardOverview = () => {
     //Medical Condition
     if (family.medicalCondition) score += 2
 
-    // Employment Status & Monthly Income
+    //Employment Status & Monthly Income
     if (family.employmentStatus === "unemployed") {
       score += 2
     } else if (family.employmentStatus === "employed") {
       if (family.monthlyIncome <= 4999) score += 3
       else if (family.monthlyIncome >= 5000 && family.monthlyIncome <= 10000) score += 2
       else if (family.monthlyIncome >= 10001) score += 1
+    }
+
+    //Previous Aid Penalty
+    if (family.timesAided > 0) {
+      score -= Math.ceil(family.timesAided * 0.5)
     }
 
     return score
@@ -269,7 +303,7 @@ const DashboardOverview = () => {
         </div>
       </div>
 
-       <div className="priority-distribution">
+      <div className="priority-distribution">
         <h2>Family Priority Distribution (Aided Families)</h2>
         <p>Sorted list of aided families by priority score</p>
         {aidedFamilies.length > 0 ? (
@@ -315,47 +349,47 @@ const DashboardOverview = () => {
           </select>
         </div>
         <div className="families-table-container">
-        <table className="families-table">
-          <thead>
-            <tr>
-              <th>Family ID</th>
-              <th>Name</th>
-              <th>Priority Score</th>
-              <th>Children</th>
-              <th>Elderly</th>
-              <th>Adults</th>
-              <th>Medical Condition</th>
-              <th>Income (Est.)</th>
-              <th>Aid Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredFamilies().map((family) => (
-              <tr key={family.id}>
-                <td>
-                  <strong>{family.id}</strong>
-                </td>
-                <td>
-                  <strong>{family.name}</strong>
-                </td>
-                <td>
-                  <span className={`priority-score ${getPriorityClass(family.priorityScore)}`}>
-                    {family.priorityScore}
-                  </span>
-                </td>
-                <td>{family.children}</td>
-                <td>{family.elderly}</td>
-                <td>{family.adults}</td>
-                <td>{family.medicalCondition ? "Yes" : "No"}</td>
-                <td>₱{family.monthlyIncome.toLocaleString()}/month</td>
-                <td>
-                  <span className={`aid-status ${family.aidStatus.toLowerCase()}`}>{family.aidStatus}</span>
-                </td>
+          <table className="families-table">
+            <thead>
+              <tr>
+                <th>Family ID</th>
+                <th>Name</th>
+                <th>Priority Score</th>
+                <th>Children</th>
+                <th>Elderly</th>
+                <th>Adults</th>
+                <th>Medical Condition</th>
+                <th>Income (Est.)</th>
+                <th>Aid Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredFamilies().map((family) => (
+                <tr key={family.id}>
+                  <td>
+                    <strong>{family.id}</strong>
+                  </td>
+                  <td>
+                    <strong>{family.name}</strong>
+                  </td>
+                  <td>
+                    <span className={`priority-score ${getPriorityClass(family.priorityScore)}`}>
+                      {family.priorityScore}
+                    </span>
+                  </td>
+                  <td>{family.children}</td>
+                  <td>{family.elderly}</td>
+                  <td>{family.adults}</td>
+                  <td>{family.medicalCondition ? "Yes" : "No"}</td>
+                  <td>₱{family.monthlyIncome.toLocaleString()}/month</td>
+                  <td>
+                    <span className={`aid-status ${family.aidStatus.toLowerCase()}`}>{family.aidStatus}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {filteredFamilies().length === 0 && (
           <div className="no-results-message">
             <p>No families match your current filters.</p>

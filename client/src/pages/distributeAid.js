@@ -167,6 +167,10 @@ const DistributeAid = () => {
       else if (family.monthlyIncome >= 5000 && family.monthlyIncome <= 10000) score += 2
       else if (family.monthlyIncome >= 10001) score += 1
     }
+    //Previous Aid Penalty
+     if (family.timesAided > 0) {
+      score -= Math.ceil(family.timesAided * 0.5)
+    }
 
     return score
   }
@@ -230,10 +234,9 @@ const DistributeAid = () => {
       }))
 
       // Distribute remaining cash to highest priority families
-      // (Only if each family can get at least 500 more)
       if (remainingCash >= 1000) {
         const cashBonusPerFamily = Math.floor(remainingCash / count)
-        if (cashBonusPerFamily >= 500) {
+        if (cashBonusPerFamily >= 1000) {
           const cashFamiliesCount = Math.floor(remainingCash / cashBonusPerFamily)
           for (let i = 0; i < Math.min(cashFamiliesCount, count); i++) {
             allocation[i].allocatedFunds += cashBonusPerFamily
@@ -429,12 +432,6 @@ const DistributeAid = () => {
             </p>
             <p>
               <strong>Packs Used:</strong> {knapsackResults.totalPacksUsed}
-            </p>
-            <p>
-              <strong>Total Packs Used:</strong> {knapsackResults.totalPacksUsed}
-              <span className="efficiency-indicator">
-              ({((knapsackResults.totalPacksUsed / Number(totalFoodPacks)) * 100).toFixed(1)}% utilized)
-              </span>
             </p>
               {knapsackResults.remainderDistributed && (
             <p className="remainder-note">

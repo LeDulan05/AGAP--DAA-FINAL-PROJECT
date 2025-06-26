@@ -22,7 +22,7 @@
 
 .sidebar {
   width: 222px;
-  background-color: #f8f9fa;
+  background-color: #e2e3e6;
   color: #495057;
   display: flex;
   flex-direction: column;
@@ -87,7 +87,7 @@
 }
 
 .nav-links a {
-  color: #495057;
+  color: #060607;
   text-decoration: none;
   font-family: "Quicksand-Bold", sans-serif;
   font-size: 0.9rem;

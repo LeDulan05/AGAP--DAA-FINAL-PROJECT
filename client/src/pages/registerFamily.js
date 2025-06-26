@@ -266,27 +266,6 @@ const FamilyRegistration = () => {
             </div>
           </div>
 
-          {/* Previous Aid History */}
-          <div className="form-section">
-            <h2>Previous Aid History / Notes</h2>
-            <div className="form-group">
-              <Field name="PreviousAid">
-                {({ field }) => (
-                  <textarea
-                    {...field}
-                    placeholder="Provide details of any past aid received or relevant financial notes..."
-                    rows="3"
-                  />
-                )}
-              </Field>
-              <ErrorMessage
-                name="PreviousAid"
-                component="div"
-                style={{ color: "#e74c3c", fontSize: "11px", marginTop: "5px" }}
-              />
-            </div>
-          </div>
-
             {/* Buttons */}
             <div className="form-actions">
               <button type="button" className="reset-button" onClick={() => resetForm()}>
