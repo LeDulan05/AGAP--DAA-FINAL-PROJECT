@@ -269,21 +269,23 @@ const DashboardOverview = () => {
         </div>
       </div>
 
-      <div className="priority-distribution">
+       <div className="priority-distribution">
         <h2>Family Priority Distribution (Aided Families)</h2>
         <p>Sorted list of aided families by priority score</p>
         {aidedFamilies.length > 0 ? (
-          <div className="priority-list">
-            {aidedFamilies
-              .sort((a, b) => b.priorityScore - a.priorityScore)
-              .map((family) => (
-                <div key={family.id} className="priority-item">
-                  <span className="family-name">{family.name}</span>
-                  <span className={`priority-score ${getPriorityClass(family.priorityScore)}`}>
-                    {family.priorityScore}
-                  </span>
-                </div>
-              ))}
+          <div className="priority-list-container">
+            <div className="priority-list">
+              {aidedFamilies
+                .sort((a, b) => b.priorityScore - a.priorityScore)
+                .map((family) => (
+                  <div key={family.id} className="priority-item">
+                    <div className="family-name">{family.name}</div>
+                    <div className={`priority-score ${getPriorityClass(family.priorityScore)}`}>
+                      {family.priorityScore}
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
         ) : (
           <p className="no-data-message">No families have received aid yet.</p>
@@ -312,7 +314,7 @@ const DashboardOverview = () => {
             <option value="aided">Aided</option>
           </select>
         </div>
-
+        <div className="families-table-container">
         <table className="families-table">
           <thead>
             <tr>
@@ -353,7 +355,7 @@ const DashboardOverview = () => {
             ))}
           </tbody>
         </table>
-
+      </div>
         {filteredFamilies().length === 0 && (
           <div className="no-results-message">
             <p>No families match your current filters.</p>

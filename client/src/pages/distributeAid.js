@@ -451,6 +451,7 @@ const DistributeAid = () => {
             <h3 className="results-title">
               Allocation Results <span className="sorted-badge">(Sorted by Priority)</span>
             </h3>
+            <div className="table-container">
             <table className="allocation-table">
               <thead>
                 <tr>
@@ -480,7 +481,7 @@ const DistributeAid = () => {
                     <td>{family.children}</td>
                     <td>{family.elderly}</td>
                     <td>₱{family.allocatedFunds.toFixed(2)}</td>
-                    <td>{family.allocatedFood} packs</td>
+                    <td>{family.allocatedFood} pack/s</td>
                     <td className={extraFood > 0 ? 'extra-food' : ''}>
                       {extraFood > 0 ? `+${extraFood}` : '-'}
                     </td>
@@ -489,6 +490,7 @@ const DistributeAid = () => {
               })}
               </tbody>
             </table>
+          </div>
           </div>
 
           <button

@@ -6,7 +6,7 @@ import * as Yup from "yup"
 import axios from "axios"
 import "./registerFamily.css"
 
-export default function FamilyRegistration() {
+const FamilyRegistration = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const initialValues = {
@@ -302,3 +302,5 @@ export default function FamilyRegistration() {
     </div>
   )
 }
+
+export default FamilyRegistration
