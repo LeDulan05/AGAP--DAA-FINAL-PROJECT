@@ -1,0 +1,160 @@
+@font-face {
+  font-family: 'Montserrat-SemiBold';
+  src: url('../assets/Montserrat-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+
+/* Base Styles */
+.loginPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Montserrat-SemiBold', sans-serif;
+}
+
+/* Form Container */
+.loginPage form {
+  background: white;
+  padding: 2.5rem;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  border-radius: 8px;
+}
+
+.loginPage form button {
+  background-color: #ffffff;
+  margin-top: 1.25rem;
+  border: white;
+  border-radius: 19px;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+  height: 45px;
+
+  color: #2148c0;
+  font-family: "Montserrat-SemiBold", sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.loginPage form button:hover {
+  background-color: #2148c0;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+
+.logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  z-index: 2;
+}
+
+
+.v1 {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 54vw;
+  height: 100vh;
+  z-index: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 25% 100%);
+}
+
+.e1, .e2, .e3 {
+  position: absolute;
+  left: -5%;
+  bottom: -5%;
+
+  z-index: 0;
+  filter: blur(1px);
+}
+
+.e1 {
+  height: 219px;
+  width: 219px;
+}
+
+.e2 {
+  height: 286px;
+  width: 286px;
+}
+
+.e3 {
+  height: 362px;
+  width: 362px;
+}
+
+
+.inputWithIcon {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.inputWithIcon input {
+  width: 100%;
+  padding: 0.625rem 0.625rem 0.625rem 2.5rem;
+  font-size: 0.875rem;
+  border-radius: 19px;
+  height: 45px;
+  border: 1px solid #ddd;
+  font-family: "Montserrat-SemiBold", sans-serif;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.inputWithIcon input:focus {
+  border-color: #2148c0;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(33, 72, 192, 0.2);
+}
+
+.inputWithIcon input::placeholder {
+  color: #999;
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+.inputWithIcon .userIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.inputWithIcon .userIcon img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+
+@media (max-width: 768px) {
+  .loginPage form {
+    width: 90%;
+    padding: 1.5rem;
+  }
+  
+  .v1 {
+    width: 100%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 85%);
+  }
+  
+  .e1, .e2, .e3 {
+    display: none;
+  }
+}
